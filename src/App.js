@@ -8,32 +8,32 @@ function App() {
   const [movies,setMovies]=useState([]);
   const [IsLoading,SetLoading]=useState(false);
   const [error,setError]=useState(null)
-  const [addmovie,Setaddmovie]=useState(false)
+
 
 
  const  FetchMovieHandler=useCallback(async ()=>{
   setError(null)
   SetLoading(true)
   try {
-   const response =await fetch('https://swapi.dev/api/films/')
+   const response =await fetch('https://react-http-6fa83-default-rtdb.firebaseio.com/movie.json')
    if(!response.ok)
     {        
       throw new Error('Something went Wrong......');
     
     }
    const data=await response.json();
+   const loadedmovies=[];
+   for(const key in data)
+   { loadedmovies.push({id:key,
+    title:data[key].title,
+    openingText:data[key].opening_text,
+    releaseDate:data[key].releaseDate
+  })
+
+   }
    
-    const transfomeddata=data.results.map((movie)=>{return {id:movie.episode_id,
-                           title:movie.title,
-                           openingText:movie.opening_crawl,
-                          releaseDate:movie.release_date}} )
-  
-                          setMovies(transfomeddata);
-                      
-                        
-                        
-                          
-    
+     setMovies(loadedmovies);
+                       
   } catch (error) { 
    setError(error.message)
  
@@ -51,8 +51,17 @@ FetchMovieHandler();
 }
 
 useEffect(()=>{FetchMovieHandler();},[FetchMovieHandler])
-const AddMovieHandler=()=>{
-  Setaddmovie(true);
+ async function AddMovieHandler(movie){
+ const response=await fetch('https://react-http-6fa83-default-rtdb.firebaseio.com/movie.json',{
+    method:'POST',
+    body:JSON.stringify(movie),
+    headers:{
+      'contet-type':'application/json'
+    }
+  })
+  const data=await response.json()
+  console.log(data);
+  
 
 }
 
@@ -61,8 +70,7 @@ const AddMovieHandler=()=>{
     <React.Fragment>
      { !IsLoading && error && <button onClick={RetryingHandler} >Retry</button>}
       <section>
-        {addmovie&&<AddMovie></AddMovie>}
-       { !addmovie && <button onClick={AddMovieHandler}>AddMovies</button>}
+        {<AddMovie OnAddMovie={AddMovieHandler}></AddMovie>}
         <button onClick={FetchMovieHandler}>Fetch Movies</button>
       </section>
       <section>
