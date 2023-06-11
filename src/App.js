@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useEffect } from 'react';
+import { useEffect,useCallback } from 'react';
 import MoviesList from './components/MoviesList';
 import './App.css';
 
@@ -9,11 +9,11 @@ function App() {
   const [error,setError]=useState(null)
 
 
- async function FetchMovieHandler(){
+ const  FetchMovieHandler=useCallback(async ()=>{
   setError(null)
   SetLoading(true)
   try {
-   const response =await fetch('https://swapi.dev/api/film/')
+   const response =await fetch('https://swapi.dev/api/films/')
    if(!response.ok)
     {        
       throw new Error('Something went Wrong......');
@@ -37,9 +37,9 @@ function App() {
  
     
   }
-  SetLoading(false)
+SetLoading(false)
 
-}
+},[]);
 
 const RetryingHandler=()=>{
  
@@ -48,7 +48,7 @@ FetchMovieHandler();
   
 }
 
-
+useEffect(()=>{FetchMovieHandler();},[FetchMovieHandler])
 
 
   return (
